@@ -12,7 +12,7 @@ window.debounce = function (func, wait, options) {
 		leading = !!options.leading; // undefined -> false
 		maxing = 'maxWait' in options;
 		maxWait = maxing ? Math.max(+options.maxWait || 0, wait) : wait; // +maxWait || 0 -> ensures number
-		trailing = 'trailing' in options ? !!options.trailing : true;
+		trailing = 'trailing' in options ? options.trailing : undefined;
 	}
 
 	function invokeFunc(time, status) {
@@ -21,8 +21,14 @@ window.debounce = function (func, wait, options) {
 
 		// clear on trailing or maxWait
 		if (status != -1) {
-			lastArgs = lastThis = timerId = undefined;
-			if (!trailing) return;
+			if (trailing === false) return; // If we're not allowing maxWait or trailing
+			else if (trailing && status === 0) { // If we're forcing trailing after a maxWait call
+				lastCallTime = time;
+				lastInvokeTime = time;
+			} else {
+				// Otherwise clear the args
+				lastArgs = lastThis = timerId = undefined;
+			}
 		}
 
 		func.apply(thisArg, [status, ...args]);
@@ -44,7 +50,10 @@ window.debounce = function (func, wait, options) {
 		const invokeReasons = getInvokeReasons(time);
 
 		if (invokeReasons.trailingEdge || invokeReasons.bugTrailingEdge) return invokeFunc(time, 1);
-		else if (invokeReasons.maxWait) return invokeFunc(time, 0);
+		else if (invokeReasons.maxWait) {
+			invokeFunc(time, 0);
+			if (trailing != true) return;
+		}
 
 		// Restart the timer.
 		timerId = startTimer(timerExpired)

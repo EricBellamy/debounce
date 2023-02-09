@@ -31,7 +31,7 @@ window.debounce(function (status) {
   else console.log("This will never get called");
 }, 500, { leading: true, trailing: false });
 ```
-Don't call back at the end of a debounce for any reason. Usually used in combination with leading || maxWait.
+Setting trailing to false will prevent any callback at the end of a debounce. A true value will ensure that your callback function always receives a trailing flag even if maxWait is triggered.
 
 &nbsp;
 
@@ -70,6 +70,15 @@ const debouncedFunc = window.debounce(function(status){
 }, 500, { maxWait: 1000 });
 ```
 A button that will wait 500ms to execute, or if clicked repeatedly, will execute after up to 1000ms of waiting
+
+&nbsp;
+
+```javascript
+const debouncedFunc = window.debounce(function(status){
+  console.log(status);
+}, 500, { maxWait: 1000, trailing: true });
+```
+A button that will wait 500ms to execute, or if clicked repeatedly, will execute after up to 1000ms of waiting. If maxWait occurs before the trailing callback, it will wait another 500ms and then execute with a trailing flag.
 
 &nbsp;
 
